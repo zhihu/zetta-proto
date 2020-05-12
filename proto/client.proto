@@ -1,0 +1,182 @@
+syntax = "proto3";
+package tablestore;
+
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "transaction.proto";
+import "mutation.proto";
+import "result_set.proto";
+import "keys.proto";
+
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+
+option java_package = "com.zhihu.platform.tablestore.cliproto";
+
+
+service Tablestore {
+    
+    rpc CreateSession(CreateSessionRequest) returns (Session);
+    
+    rpc BatchCreateSessions(BatchCreateSessionsRequest) returns (BatchCreateSessionsResponse);
+    
+    rpc GetSession(GetSessionRequest) returns (Session);
+
+    rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
+
+    rpc DeleteSession(DeleteSessionRequest) returns (google.protobuf.Empty);
+
+    rpc Read(ReadRequest) returns(ResultSet);
+    
+    rpc StreamingRead(ReadRequest) returns (stream PartialResultSet) ;
+
+    rpc BeginTransaction(BeginTransactionRequest) returns (Transaction) ;
+    
+    rpc Commit(CommitRequest) returns (CommitResponse); 
+    
+    rpc Rollback(RollbackRequest) returns (google.protobuf.Empty);
+
+    rpc Mutate(MutationRequest) returns(MutationResponse);
+
+}
+
+
+
+message BeginTransactionRequest {
+    string session = 1;
+    TransactionOptions options = 2;
+}
+
+message CommitRequest {
+    string session = 1;
+    oneof transaction {
+        // Commit a previously-started transaction.
+        bytes transaction_id = 2;
+    
+        // Execute mutations in a temporary transaction. Note that unlike
+        // commit of a previously-started transaction, commit with a
+        // temporary transaction is non-idempotent. That is, if the
+        // `CommitRequest` is sent to Cloud Spanner more than once (for
+        // instance, due to retries in the application, or in the
+        // transport library), it is possible that the mutations are
+        // executed more than once. If this is undesirable, use
+        // [BeginTransaction][google.spanner.v1.Spanner.BeginTransaction] and
+        // [Commit][google.spanner.v1.Spanner.Commit] instead.
+        TransactionOptions single_use_transaction = 3;
+      }
+      repeated Mutation mutations = 4;
+}
+
+// The request for [Rollback][google.spanner.v1.Spanner.Rollback].
+message RollbackRequest {
+    string session = 1;
+    // Required. The transaction to roll back.
+    bytes transaction_id = 2;
+}
+  
+
+message CommitResponse {
+    google.protobuf.Timestamp commit_timestamp =1;
+}
+
+message ReadRequest {
+     // Required. The database (session) in which the read should be performed.
+    string session = 1; 
+    TransactionSelector transaction = 2;
+    // Required. The name of the table in the database to be read.
+    string table = 3;
+    string index = 4;
+    repeated string columns = 6 ;
+    int64 limit = 7;
+    KeySet key_set = 8;
+    bytes resume_token = 9;
+    bytes partition_token = 10;
+}
+
+message MutationRequest {
+    string session = 1;
+    string table = 2;
+    TransactionSelector transaction = 3;
+    repeated Mutation mutations = 4;
+}
+
+message MutationResponse {
+    google.protobuf.Timestamp commit_timestamp =1;
+}
+
+message Session {
+    // The name of the session. This is always system-assigned; values provided
+    // when creating a session are ignored.
+    string name = 1;
+
+    // The labels for the session.
+    //
+    //  * Label keys must be between 1 and 63 characters long and must conform to
+    //    the following regular expression: `[a-z]([-a-z0-9]*[a-z0-9])?`.
+    //  * Label values must be between 0 and 63 characters long and must conform
+    //    to the regular expression `([a-z]([-a-z0-9]*[a-z0-9])?)?`.
+    //  * No more than 64 labels can be associated with a given session.
+    //
+    // See https://goo.gl/xmQnxf for more information on and examples of labels.
+    map<string, string> labels = 2;
+
+    // Output only. The timestamp when the session is created.
+    google.protobuf.Timestamp create_time = 3;
+
+    // Output only. The approximate timestamp when the session is last used. It is
+    // typically earlier than the actual last use time.
+    google.protobuf.Timestamp approximate_last_use_time = 4;
+}
+
+message CreateSessionRequest {
+    // Required. The database in which the new session is created.
+    string database = 1;
+  
+    // The session to create.
+    Session session = 2;
+}
+
+message BatchCreateSessionsRequest {
+    // Required. The database in which the new sessions are created.
+    string database = 1;
+    // Parameters to be applied to each created session.
+    Session session_template = 2;
+
+    // Required. The number of sessions to be created in this batch call.
+    // The API may return fewer than the requested number of sessions. If a
+    // specific number of sessions are desired, the client can make additional
+    // calls to BatchCreateSessions (adjusting
+    // [session_count][google.spanner.v1.BatchCreateSessionsRequest.session_count]
+    // as necessary).
+    int32 session_count = 3;
+}
+  
+ 
+message BatchCreateSessionsResponse {
+    // The freshly created sessions.
+    repeated Session session = 1;
+}
+
+message GetSessionRequest {
+    string name = 1;
+}
+
+message ListSessionsRequest {
+    string database = 1;
+    int32 page_size = 2;
+    string page_token = 3;
+    string filter = 4;
+}
+
+message ListSessionsResponse {
+    repeated Session sessions = 1;
+    string next_page_token = 2;
+}
+
+message DeleteSessionRequest {
+    string name = 1;
+}

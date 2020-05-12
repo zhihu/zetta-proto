@@ -1,0 +1,62 @@
+syntax = "proto3";
+package tablestore;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+import "type.proto";
+
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+
+option java_package = "com.zhihu.platform.tablestore.base";
+
+message DatabaseMeta {
+    int64 id = 1;
+    string database = 2;
+    map<string, string> attributes = 3;
+    google.protobuf.Timestamp create_timestamp = 4;
+}
+
+message TableMeta {
+    int64 id = 1;    
+    string table_name = 2;
+    string database = 3;    
+    repeated ColumnFamilyMeta column_families = 4;
+    repeated ColumnMeta columns = 5;
+    repeated string primary_key = 6;    
+    map<string, string> attributes = 7; 
+    InterleaveMeta interleave = 8;   
+    repeated string extra_statements = 9;
+}
+
+message ColumnFamilyMeta {
+    int64 id = 1;
+    string name = 2;
+    map<string, string> attributes = 4; 
+}
+
+message ColumnMeta {
+    int64 id = 1;
+    string name = 2; 
+    Type column_type = 3;
+    bool is_primary = 4;
+    bool not_null = 5;
+    string family = 6;  
+}
+
+message IndexMeta {
+    int64 id = 1;
+    string name = 2; 
+    string table_name = 3;
+    repeated string defined_columns = 4;
+    bool unique = 5;
+    bool reverse = 6;
+}
+
+message InterleaveMeta {
+    string database = 1;
+    string parent = 2;
+    bool on_delete = 3;
+}

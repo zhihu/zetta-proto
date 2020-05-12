@@ -1,0 +1,225 @@
+syntax = "proto3";
+package tablestore;
+
+import "gogoproto/gogo.proto";
+
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+
+option java_package = "com.zhihu.platform.tablestore.ddlproto";
+
+import "tablestore.proto";
+
+
+service TablestoreAdmin {
+
+    // Modify a Database's metadata 
+    rpc UpdateDatabase(UpdateDatabaseRequest) returns (UpdateDatabaseResponse);
+
+    // Creates a new Database synchronously 
+    rpc CreateDatabase(CreateDatabaseRequest) returns(CreateDatabaseResponse);
+
+    // Deletes Database synchronously 
+    rpc DeleteDatabase(DeleteDatabaseRequest) returns(DeleteDatabaseResponse);
+
+    // Get a Database descriptor by name 
+    rpc GetDatabase(GetDatabaseRequest) returns (GetDatabaseResponse);
+
+    // returns a list of Databases 
+    rpc ListDatabase(ListDatabaseRequest) returns (ListDatabaseResponse);
+
+    // Creates a new table asynchronously 
+    rpc CreateTable(CreateTableRequest) returns (CreateTableResponse);
+
+    // Deletes a table 
+    rpc DropTable(DropTableRequest) returns (DropTableResponse);
+
+    // Truncate a table 
+    rpc TruncateTable(TruncateTableRequest) returns(TruncateTableResponse);
+
+    // Modify a table's metadata 
+    rpc AlterTable(AlterTableRequest) returns (AlterTableResponse);
+	
+	// Return a list of tables
+	rpc ListTables(ListTableByDatabaseRequest) returns(ListTableByDatabaseResponse);
+
+    // Adds a column to the specified table.
+    rpc AddColumn(AddColumnRequest) returns (AddColumnResponse);
+
+    // Deletes a column from the specified table. Table must be disabled.
+    rpc DeleteColumn(DeleteColumnRequest) returns (DeleteColumnResponse);
+
+    // Modifies an existing column on the specified table.
+    rpc UpdateColumn(UpdateColumnRequest) returns (UpdateColumnResponse);
+
+    rpc CreateIndex(CreateIndexRequest) returns (CreateIndexResponse); 
+    
+    rpc ListIndex(ListIndexRequest) returns (ListIndexResponse);
+    
+    rpc GetIndex(GetIndexRequest) returns (GetIndexResponse);
+
+    rpc DropIndex(DropIndexRequest) returns (DropIndexResponse); 
+
+}
+
+message CreateDatabaseRequest{
+    string database = 1;
+    map<string, string> attributes = 2;
+}
+
+
+message CreateDatabaseResponse{
+    DatabaseMeta database_meta = 1;
+}
+
+message UpdateDatabaseRequest{
+    string database = 1;
+    map<string, string> attributes = 2;    
+}
+
+message UpdateDatabaseResponse{
+    DatabaseMeta database_meta = 1;
+}
+
+message DeleteDatabaseRequest{
+    int64 id = 1;
+    string database = 2;
+}
+
+message DeleteDatabaseResponse{}
+
+message GetDatabaseRequest{
+    int64 id = 1;
+    string database = 2;
+}
+    
+message GetDatabaseResponse{
+    DatabaseMeta database_meta = 1;
+}
+
+message ListDatabaseRequest{
+    string parent = 1;
+    int32 page_size = 2;
+    string page_token = 3;    
+}
+
+message ListDatabaseResponse{
+    repeated DatabaseMeta databases = 1;
+    string next_page_token = 2;
+}
+
+message ListTableByDatabaseRequest{
+    string database = 1;
+    int32 page_size  = 2;
+    string page_token = 3;
+}
+
+message ListTableByDatabaseResponse{
+    repeated TableMeta tables = 1;
+    string next_page_token = 2;
+}
+
+
+message CreateTableRequest{
+    string database = 1;
+    TableMeta table_meta = 2; 
+    repeated IndexMeta indexes =3;
+}
+
+message CreateTableResponse{}
+
+message DropTableRequest{
+    string database = 1;
+    string table = 2;   
+}
+
+message DropTableResponse{}
+
+
+
+message AlterTableRequest{
+    string database = 1;
+    TableMeta table_meta = 2;
+} 
+
+message AlterTableResponse{}
+
+message TruncateTableRequest{
+    string database = 1;
+    string table = 2;
+}
+
+message TruncateTableResponse{
+}
+
+
+
+message AddColumnRequest{
+	string database = 1;
+    string table = 2;
+    repeated ColumnFamilyMeta column_families = 3;
+    repeated ColumnMeta columns = 4;
+}
+
+message AddColumnResponse{}
+
+message UpdateColumnRequest{
+    string database = 1;
+    string table = 2;
+    ColumnFamilyMeta column_families = 3;
+    ColumnMeta columns = 4;
+} 
+
+message UpdateColumnResponse{}
+
+message DeleteColumnRequest{
+    string database = 1;
+    string table = 2;
+    repeated string column_families = 3;
+    repeated string columns = 4;
+} 
+
+message DeleteColumnResponse{}
+
+message CreateIndexRequest {
+    string database = 1;
+    string table = 2;
+    IndexMeta indexes = 3;
+}
+
+message CreateIndexResponse {}
+
+message ListIndexRequest {
+    string database = 1;
+    string table = 2;
+} 
+
+message ListIndexResponse {
+    repeated IndexMeta indexes = 1;
+}
+
+message GetIndexRequest {
+    string database = 1;
+    string table = 2;
+    string index = 3;
+}
+
+message GetIndexResponse {
+    IndexMeta index  = 1;
+}
+
+message DropIndexRequest {
+    string database = 1;
+    string table = 2;
+    string index = 3;
+} 
+
+message DropIndexResponse {
+}
+
+
+message ColumnName {
+    string column_family = 1;
+    string column = 2;
+}
