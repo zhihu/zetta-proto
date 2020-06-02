@@ -7,6 +7,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "transaction.proto";
+import "struct.proto";
 import "mutation.proto";
 import "result_set.proto";
 import "keys.proto";
@@ -31,6 +32,8 @@ service Tablestore {
     rpc DeleteSession(DeleteSessionRequest) returns (google.protobuf.Empty);
 
     rpc Read(ReadRequest) returns(ResultSet);
+
+    rpc SparseRead(SparseReadRequest) returns (ResultSet);
     
     rpc StreamingRead(ReadRequest) returns (stream PartialResultSet) ;
 
@@ -95,6 +98,22 @@ message ReadRequest {
     KeySet key_set = 8;
     bytes resume_token = 9;
     bytes partition_token = 10;
+}
+
+message SparseReadRequest {
+    string session = 1;
+    TransactionSelector transaction = 2;
+    string table = 3;
+    string family  = 4;
+    repeated Row rows = 5;
+    int64 limit = 6;
+    bytes resume_token = 9;
+    bytes partition_token = 10;
+}
+
+message Row {
+    ListValue keys = 1;
+    repeated string qualifiers = 2;
 }
 
 message MutationRequest {
