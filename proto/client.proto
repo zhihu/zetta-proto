@@ -37,6 +37,8 @@ service Tablestore {
     
     rpc StreamingRead(ReadRequest) returns (stream PartialResultSet) ;
 
+    rpc StreamingSparseRead(SparseReadRequest) returns (stream PartialResultSet);
+
     rpc BeginTransaction(BeginTransactionRequest) returns (Transaction) ;
     
     rpc Commit(CommitRequest) returns (CommitResponse); 
