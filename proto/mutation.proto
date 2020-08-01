@@ -63,6 +63,9 @@ message Mutation {
     repeated ListValue values = 3;
 
     string family = 4; 
+
+    KeySet key_set = 5;
+    
   }
 
   // Arguments to [delete][google.spanner.v1.Mutation.delete] operations.
@@ -76,6 +79,8 @@ message Mutation {
     KeySet key_set = 2;
 
     repeated string columns = 3;
+
+    string family = 4;
   }
 
   // Required. The operation to perform.
