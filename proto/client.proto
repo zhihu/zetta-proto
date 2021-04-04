@@ -40,8 +40,11 @@ service Tablestore {
     rpc StreamingRead(ReadRequest) returns (stream PartialResultSet) ;
 
     rpc StreamingSparseRead(SparseReadRequest) returns (stream PartialResultSet);
+<<<<<<< HEAD
     
     rpc StreamingSparseScan(SparseScanRequest) returns (stream PartialResultSet);
+=======
+>>>>>>> upstream/master
 
     rpc BeginTransaction(BeginTransactionRequest) returns (Transaction) ;
     
