@@ -35,9 +35,13 @@ service Tablestore {
 
     rpc SparseRead(SparseReadRequest) returns (ResultSet);
     
+    rpc SparseScan(SparseScanRequest) returns (ResultSet);
+    
     rpc StreamingRead(ReadRequest) returns (stream PartialResultSet) ;
 
     rpc StreamingSparseRead(SparseReadRequest) returns (stream PartialResultSet);
+    
+    rpc StreamingSparseScan(SparseScanRequest) returns (stream PartialResultSet);
 
     rpc BeginTransaction(BeginTransactionRequest) returns (Transaction) ;
     
@@ -74,6 +78,7 @@ message CommitRequest {
         TransactionOptions single_use_transaction = 3;
       }
       repeated Mutation mutations = 4;
+      string table = 5;
 }
 
 // The request for [Rollback][google.spanner.v1.Spanner.Rollback].
@@ -116,6 +121,19 @@ message SparseReadRequest {
 message Row {
     ListValue keys = 1;
     repeated string qualifiers = 2;
+}
+
+message SparseScanRequest {
+    string session = 1;
+    TransactionSelector transaction = 2;
+    string table = 3;
+    string family  = 4;
+    KeySet key_set = 5;
+    repeated string qualifiers = 6;
+    string index = 7;
+    int64 limit = 8;
+    bytes resume_token = 9;
+    bytes partition_token = 10;
 }
 
 message MutationRequest {
